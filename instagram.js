@@ -1,20 +1,22 @@
 /**
  * instagram.js — enforced on every instagram.com page.
  *
- * Same two-part detection as youtube.js (see the comment there): patches
- * installed synchronously before any async work, plus a polling backstop.
- * This matters more here than it first seemed to — Instagram's router
- * appears to grab its own reference to history.pushState very early during
- * startup, so the previous version (which awaited settings before
- * patching) lost that race and the patch never actually caught anything.
- *
+ * Two layers for navigation, same pattern as youtube.js: patches installed
+ * synchronously before any async work (settings load in the background and
+ * apply once ready, using safe defaults meanwhile), plus a polling backstop.
  * Landing on a blocked path redirects straight to the DM inbox rather than
  * a separate blocked page.
+ *
+ * A third layer exists just for reels: swiping to the next reel appears to
+ * happen entirely client-side, with no corresponding URL change — so
+ * neither the patch nor the poll can see it. While viewing a locked reel,
+ * touch/wheel/arrow-key navigation is suppressed directly instead.
  */
 (function () {
-  let instagramEnabled = true; // sensible default, applied immediately
+  let instagramEnabled = true;
   let extraBlock = [];
   let allowedReelId = null;
+  let onLockedReel = false;
   let lastCheckedPath = null;
 
   function redirectToMessages() {
@@ -24,6 +26,7 @@
   function enforce(isFreshLoad) {
     const path = location.pathname;
     lastCheckedPath = path;
+    onLockedReel = false;
 
     if (!instagramEnabled) return;
     if (path === '/direct/inbox/') return;
@@ -40,7 +43,9 @@
         allowedReelId = rid;
       } else if (rid !== allowedReelId) {
         redirectToMessages();
+        return;
       }
+      onLockedReel = true;
     }
   }
 
@@ -57,6 +62,22 @@
   setInterval(() => {
     if (location.pathname !== lastCheckedPath) enforce(false);
   }, 400);
+
+  function suppressSwipe(e) {
+    if (onLockedReel) e.preventDefault();
+  }
+  document.addEventListener('touchmove', suppressSwipe, { passive: false, capture: true });
+  document.addEventListener('wheel', suppressSwipe, { passive: false, capture: true });
+  document.addEventListener(
+    'keydown',
+    (e) => {
+      if (onLockedReel && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    },
+    { capture: true }
+  );
 
   enforce(true);
 

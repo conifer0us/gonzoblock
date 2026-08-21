@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Feed Limiter Settings</title>
+<title>noalgo Settings</title>
 <link rel="stylesheet" href="common.css">
 <link rel="stylesheet" href="options.css">
 </head>
 <body>
   <main>
-    <p class="eyebrow">FEED LIMITER</p>
+    <p class="eyebrow">NOALGO</p>
     <h1>Settings</h1>
 
     <section>
@@ -30,6 +30,16 @@
       <label class="block">
         <span>Extra blocked paths (one per line — e.g. <code>/stories</code> to also block Stories)</span>
         <textarea id="extraInstagramBlock" rows="3" placeholder="/stories"></textarea>
+      </label>
+    </section>
+
+    <section>
+      <h2>Reddit</h2>
+      <label class="row"><input type="checkbox" id="redditEnabled"> Restrict Reddit</label>
+      <p class="note">Subreddits, posts/comments, profiles, messages, and search are allowed by default. Only the front page, its sort views (hot/new/top/rising/etc.), r/all, and r/popular are blocked.</p>
+      <label class="block">
+        <span>Extra blocked paths (one per line — e.g. <code>/r/videos</code> to also block a specific subreddit)</span>
+        <textarea id="extraRedditBlock" rows="3" placeholder="/r/videos"></textarea>
       </label>
     </section>
 

@@ -1,13 +1,15 @@
 const DEFAULTS = {
   youtubeEnabled: true,
   instagramEnabled: true,
+  redditEnabled: true,
   hideComments: true,
   hideYouTubeNav: true,
   extraYouTubeAllow: [],
-  extraInstagramBlock: []
+  extraInstagramBlock: [],
+  extraRedditBlock: []
 };
 
-const fields = ['youtubeEnabled', 'instagramEnabled', 'hideComments', 'hideYouTubeNav'];
+const fields = ['youtubeEnabled', 'instagramEnabled', 'redditEnabled', 'hideComments', 'hideYouTubeNav'];
 
 function linesToList(text) {
   return text
@@ -23,6 +25,7 @@ async function load() {
   }
   document.getElementById('extraYouTubeAllow').value = (stored.extraYouTubeAllow || []).join('\n');
   document.getElementById('extraInstagramBlock').value = (stored.extraInstagramBlock || []).join('\n');
+  document.getElementById('extraRedditBlock').value = (stored.extraRedditBlock || []).join('\n');
 }
 
 async function save() {
@@ -32,6 +35,7 @@ async function save() {
   }
   data.extraYouTubeAllow = linesToList(document.getElementById('extraYouTubeAllow').value);
   data.extraInstagramBlock = linesToList(document.getElementById('extraInstagramBlock').value);
+  data.extraRedditBlock = linesToList(document.getElementById('extraRedditBlock').value);
   await browser.storage.local.set(data);
 
   const status = document.getElementById('status');
