@@ -1,0 +1,14 @@
+/* Cosmetic only — declutters the nav on allowed pages. Real enforcement is
+   the redirect logic in instagram.js, so this is safe to leave stale if
+   Instagram's markup changes.
+   Search, Messages, Create, Notifications, and Profile stay visible on
+   purpose (all allowed now) — only Home, Explore, and the Reels tab, which
+   all lead to blocked destinations, are decluttered. */
+nav a[aria-label="Home"],
+nav a[aria-label="Explore"],
+nav a[aria-label="Reels"],
+a[href="/explore/"],
+a[href^="/explore/"],
+a[href="/reels/"] {
+  display: none !important;
+}

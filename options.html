@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feed Limiter Settings</title>
+<link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <p class="eyebrow">FEED LIMITER</p>
+    <h1>Settings</h1>
+
+    <section>
+      <h2>YouTube</h2>
+      <label class="row"><input type="checkbox" id="youtubeEnabled"> Restrict YouTube</label>
+      <label class="row"><input type="checkbox" id="hideComments"> Hide comments on watch pages</label>
+      <label class="row"><input type="checkbox" id="hideYouTubeNav"> Hide the top nav bar</label>
+      <label class="block">
+        <span>Extra allowed paths (one per line — e.g. <code>/playlist</code>)</span>
+        <textarea id="extraYouTubeAllow" rows="3" placeholder="/playlist"></textarea>
+      </label>
+    </section>
+
+    <section>
+      <h2>Instagram</h2>
+      <label class="row"><input type="checkbox" id="instagramEnabled"> Restrict Instagram</label>
+      <p class="note">Messages, posting, search, profiles, and individual posts/reels are allowed by default. Only the home feed, Explore, and the Reels tab are blocked.</p>
+      <label class="block">
+        <span>Extra blocked paths (one per line — e.g. <code>/stories</code> to also block Stories)</span>
+        <textarea id="extraInstagramBlock" rows="3" placeholder="/stories"></textarea>
+      </label>
+    </section>
+
+    <div class="save-row">
+      <button id="save">Save</button>
+      <span id="status" aria-live="polite"></span>
+    </div>
+  </main>
+<script src="options.js"></script>
+</body>
+</html>

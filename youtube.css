@@ -1,0 +1,38 @@
+/* ---- Toggleable (see options page) ---- */
+#comments,
+ytd-comments#comments {
+  display: none !important;
+}
+html.mfl-show-comments #comments,
+html.mfl-show-comments ytd-comments#comments {
+  display: revert !important;
+}
+
+ytd-masthead,
+#masthead-container {
+  display: none !important;
+}
+html.mfl-show-nav ytd-masthead,
+html.mfl-show-nav #masthead-container {
+  display: revert !important;
+}
+
+/* ---- Always on: the algorithmic parts of a watch page ---- */
+#related,
+ytd-watch-next-secondary-results-renderer {
+  display: none !important;
+}
+
+.ytp-endscreen-content,
+.ytp-ce-element,
+.ytp-ce-covering-overlay {
+  display: none !important;
+}
+
+.ytp-autonav-toggle-button-container {
+  display: none !important;
+}
+
+ytd-watch-flexy[flexy] #primary.ytd-watch-flexy {
+  max-width: 100% !important;
+}

@@ -1,0 +1,19 @@
+body { width: 220px; }
+main { padding: 1rem; }
+.eyebrow {
+  font-family: var(--mfl-mono);
+  letter-spacing: 0.1em;
+  color: var(--mfl-brass);
+  font-size: 0.7rem;
+  margin: 0 0 0.75rem;
+}
+ul { list-style: none; margin: 0 0 1rem; padding: 0; }
+li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--mfl-line);
+  font-size: 0.9rem;
+}
+strong { color: var(--mfl-brass); font-weight: 600; }
+button { width: 100%; }
