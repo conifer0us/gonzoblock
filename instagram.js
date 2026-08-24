@@ -1,22 +1,31 @@
 /**
  * instagram.js — enforced on every instagram.com page.
  *
- * Two layers for navigation, same pattern as youtube.js: patches installed
- * synchronously before any async work (settings load in the background and
- * apply once ready, using safe defaults meanwhile), plus a polling backstop.
- * Landing on a blocked path redirects straight to the DM inbox rather than
- * a separate blocked page.
+ * Two layers for navigation (URL-based), same pattern as youtube.js: patches
+ * installed synchronously before any async work, plus a polling backstop.
+ * Landing on a blocked path redirects straight to the DM inbox.
  *
- * A third layer exists just for reels: swiping to the next reel appears to
- * happen entirely client-side, with no corresponding URL change — so
- * neither the patch nor the poll can see it. While viewing a locked reel,
- * touch/wheel/arrow-key navigation is suppressed directly instead.
+ * A third layer handles reels specifically, since swiping to the next reel
+ * doesn't reliably show up as a URL change at all:
+ *  - a dedicated /reel/<id> page still gets the id-lock treatment (a
+ *    different id after the first one triggers a redirect)
+ *  - a reel played *inline inside a DM thread* never changes the URL, so
+ *    this instead watches for a large, actively-playing <video> element
+ *    while on a /direct/ page and treats that the same way. The size check
+ *    (60%+ of viewport width) is there so it doesn't also catch small
+ *    autoplay-preview thumbnails elsewhere.
+ * Suppression blocks both native touch scrolling (preventDefault) and any
+ * of Instagram's own JS-based gesture handling (stopImmediatePropagation),
+ * in case their swipe implementation tracks pointer movement manually
+ * rather than relying on the browser's native scroll.
  */
 (function () {
   let instagramEnabled = true;
   let extraBlock = [];
   let allowedReelId = null;
   let onLockedReel = false;
+  let mainVideoPlaying = false;
+  let currentPath = null;
   let lastCheckedPath = null;
 
   function redirectToMessages() {
@@ -25,6 +34,7 @@
 
   function enforce(isFreshLoad) {
     const path = location.pathname;
+    currentPath = path;
     lastCheckedPath = path;
     onLockedReel = false;
 
@@ -63,15 +73,37 @@
     if (location.pathname !== lastCheckedPath) enforce(false);
   }, 400);
 
+  function isLikelyMainVideo(video) {
+    if (!video || video.tagName !== 'VIDEO') return false;
+    const rect = video.getBoundingClientRect();
+    return rect.width >= window.innerWidth * 0.6 && rect.height >= window.innerHeight * 0.3;
+  }
+
+  document.addEventListener('play', (e) => {
+    if (isLikelyMainVideo(e.target)) mainVideoPlaying = true;
+  }, true);
+  document.addEventListener('pause', () => { mainVideoPlaying = false; }, true);
+  document.addEventListener('ended', () => { mainVideoPlaying = false; }, true);
+
+  function shouldSuppressSwipe() {
+    if (onLockedReel) return true;
+    if (mainVideoPlaying && currentPath && currentPath.startsWith('/direct/')) return true;
+    return false;
+  }
+
   function suppressSwipe(e) {
-    if (onLockedReel) e.preventDefault();
+    if (shouldSuppressSwipe()) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
   }
   document.addEventListener('touchmove', suppressSwipe, { passive: false, capture: true });
+  document.addEventListener('pointermove', suppressSwipe, { passive: false, capture: true });
   document.addEventListener('wheel', suppressSwipe, { passive: false, capture: true });
   document.addEventListener(
     'keydown',
     (e) => {
-      if (onLockedReel && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      if (shouldSuppressSwipe() && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
         e.preventDefault();
         e.stopPropagation();
       }

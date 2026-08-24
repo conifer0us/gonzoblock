@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "noalgo",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Blocks the algorithmic feeds on YouTube, Instagram, and Reddit. Direct links, DMs, posting, search, subreddits, and profiles still work.",
   "browser_specific_settings": {
     "gecko": {
