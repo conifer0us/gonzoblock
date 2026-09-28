@@ -1,30 +1,28 @@
 /**
  * instagram.js — enforced on every instagram.com page.
  *
- * Two layers for navigation (URL-based), same pattern as youtube.js: patches
- * installed synchronously before any async work, plus a polling backstop.
- * Landing on a blocked path redirects straight to the DM inbox.
+ * Two layers for navigation, same pattern as youtube.js: patches installed
+ * synchronously before any async work, plus a polling backstop. Landing on
+ * a blocked path redirects straight to the DM inbox.
  *
- * A third layer handles reels specifically, since swiping to the next reel
- * doesn't reliably show up as a URL change at all:
- *  - a dedicated /reel/<id> page still gets the id-lock treatment (a
- *    different id after the first one triggers a redirect)
- *  - a reel played *inline inside a DM thread* never changes the URL, so
- *    this instead watches for a large, actively-playing <video> element
- *    while on a /direct/ page and treats that the same way. The size check
- *    (60%+ of viewport width) is there so it doesn't also catch small
- *    autoplay-preview thumbnails elsewhere.
- * Suppression blocks both native touch scrolling (preventDefault) and any
- * of Instagram's own JS-based gesture handling (stopImmediatePropagation),
- * in case their swipe implementation tracks pointer movement manually
- * rather than relying on the browser's native scroll.
+ * A third layer handles reels: a dedicated /reel/<id> page gets id-lock
+ * treatment; a reel played inline inside a DM never changes the URL, so
+ * this watches for a large video element instead. It locks the moment that
+ * element EXISTS in the DOM (via a MutationObserver), not just once it
+ * starts playing — waiting for 'play' left a gap right after clicking a
+ * reel, before playback actually started, where scrolling still worked.
+ * The lock persists through pause (pausing isn't an escape hatch) and
+ * clears only when the element leaves the DOM or you navigate away.
+ * Touch/pointer/wheel/arrow-key gestures are suppressed while locked,
+ * except inside a genuinely scrollable panel (comments), so comments still
+ * scroll normally.
  */
 (function () {
   let instagramEnabled = true;
   let extraBlock = [];
   let allowedReelId = null;
   let onLockedReel = false;
-  let mainVideoPlaying = false;
+  let lockedVideoEl = null;
   let currentPath = null;
   let lastCheckedPath = null;
 
@@ -37,6 +35,7 @@
     currentPath = path;
     lastCheckedPath = path;
     onLockedReel = false;
+    lockedVideoEl = null;
 
     if (!instagramEnabled) return;
     if (path === '/direct/inbox/') return;
@@ -79,20 +78,42 @@
     return rect.width >= window.innerWidth * 0.6 && rect.height >= window.innerHeight * 0.3;
   }
 
+  function findMainVideo() {
+    const videos = document.querySelectorAll('video');
+    for (const v of videos) {
+      if (isLikelyMainVideo(v)) return v;
+    }
+    return null;
+  }
+
+  let checkScheduled = false;
+  function scheduleVideoCheck() {
+    if (checkScheduled) return;
+    checkScheduled = true;
+    requestAnimationFrame(() => {
+      checkScheduled = false;
+      const v = findMainVideo();
+      if (v) lockedVideoEl = v;
+    });
+  }
+  new MutationObserver(scheduleVideoCheck).observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
   document.addEventListener('play', (e) => {
-    if (isLikelyMainVideo(e.target)) mainVideoPlaying = true;
+    if (isLikelyMainVideo(e.target)) lockedVideoEl = e.target;
   }, true);
-  document.addEventListener('pause', () => { mainVideoPlaying = false; }, true);
-  document.addEventListener('ended', () => { mainVideoPlaying = false; }, true);
 
   function shouldSuppressSwipe() {
     if (onLockedReel) return true;
-    if (mainVideoPlaying && currentPath && currentPath.startsWith('/direct/')) return true;
+    if (lockedVideoEl && currentPath && currentPath.startsWith('/direct/') && document.contains(lockedVideoEl)) {
+      return true;
+    }
     return false;
   }
 
   function suppressSwipe(e) {
-    if (shouldSuppressSwipe()) {
+    if (shouldSuppressSwipe() && !mflIsWithinScrollablePanel(e.target)) {
       e.preventDefault();
       e.stopImmediatePropagation();
     }
@@ -103,7 +124,11 @@
   document.addEventListener(
     'keydown',
     (e) => {
-      if (shouldSuppressSwipe() && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      if (
+        shouldSuppressSwipe() &&
+        (e.key === 'ArrowUp' || e.key === 'ArrowDown') &&
+        !mflIsWithinScrollablePanel(e.target)
+      ) {
         e.preventDefault();
         e.stopPropagation();
       }

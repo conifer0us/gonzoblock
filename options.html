@@ -3,43 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>noalgo Settings</title>
+<title>Gonzo Block Settings</title>
 <link rel="stylesheet" href="common.css">
 <link rel="stylesheet" href="options.css">
 </head>
 <body>
   <main>
-    <p class="eyebrow">NOALGO</p>
+    <p class="eyebrow">GONZO BLOCK</p>
     <h1>Settings</h1>
 
     <section>
       <h2>YouTube</h2>
-      <label class="row"><input type="checkbox" id="youtubeEnabled"> Restrict YouTube</label>
-      <label class="row"><input type="checkbox" id="hideComments"> Hide comments on watch pages</label>
-      <label class="row"><input type="checkbox" id="hideYouTubeNav"> Hide the top nav bar</label>
+      <label class="row"><input type="checkbox" id="youtubeEnabled"> Block it</label>
+      <label class="row"><input type="checkbox" id="hideComments"> Hide comments</label>
+      <label class="row"><input type="checkbox" id="hideYouTubeNav"> Hide the nav bar</label>
       <label class="block">
-        <span>Extra allowed paths (one per line — e.g. <code>/playlist</code>)</span>
+        <span>Extra allowed paths, one per line — e.g. <code>/playlist</code></span>
         <textarea id="extraYouTubeAllow" rows="3" placeholder="/playlist"></textarea>
       </label>
     </section>
 
     <section>
       <h2>Instagram</h2>
-      <label class="row"><input type="checkbox" id="instagramEnabled"> Restrict Instagram</label>
-      <p class="note">Messages, posting, search, profiles, and individual posts/reels are allowed by default. Only the home feed, Explore, and the Reels tab are blocked.</p>
+      <label class="row"><input type="checkbox" id="instagramEnabled"> Block it</label>
+      <p class="note">DMs, posting, search, profiles, and anything someone sent you all work. The feed, Explore, and Reels tab do not.</p>
       <label class="block">
-        <span>Extra blocked paths (one per line — e.g. <code>/stories</code> to also block Stories)</span>
+        <span>Extra blocked paths, one per line — e.g. <code>/stories</code></span>
         <textarea id="extraInstagramBlock" rows="3" placeholder="/stories"></textarea>
       </label>
     </section>
 
     <section>
       <h2>Reddit</h2>
-      <label class="row"><input type="checkbox" id="redditEnabled"> Restrict Reddit</label>
-      <p class="note">Subreddits, posts/comments, profiles, messages, and search are allowed by default. Only the front page, its sort views (hot/new/top/rising/etc.), r/all, and r/popular are blocked.</p>
+      <label class="row"><input type="checkbox" id="redditEnabled"> Block it</label>
+      <p class="note">Subreddits, posts, comments, profiles, messages, and search work like normal. The front page, the hot/new/top tabs, r/all, and r/popular are blocked.</p>
       <label class="block">
-        <span>Extra blocked paths (one per line — e.g. <code>/r/videos</code> to also block a specific subreddit)</span>
+        <span>Extra blocked paths, one per line — e.g. <code>/r/videos</code></span>
         <textarea id="extraRedditBlock" rows="3" placeholder="/r/videos"></textarea>
+      </label>
+    </section>
+
+    <section>
+      <h2>Twitter</h2>
+      <label class="row"><input type="checkbox" id="twitterEnabled"> Block it</label>
+      <p class="note">Search, posts, hashtags, and profiles are untouched. The home timeline is the only thing blocked.</p>
+      <label class="block">
+        <span>Extra blocked paths, one per line — e.g. <code>/explore</code></span>
+        <textarea id="extraTwitterBlock" rows="3" placeholder="/explore"></textarea>
       </label>
     </section>
 

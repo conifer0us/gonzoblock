@@ -17,9 +17,16 @@ html.mfl-show-nav #masthead-container {
   display: revert !important;
 }
 
-/* ---- Always on: the algorithmic parts of a watch page ---- */
+/* ---- Always on: recommended/related videos, sidebar or below-player,
+   desktop (ytd-) or mobile (ytm-) layout ---- */
 #related,
-ytd-watch-next-secondary-results-renderer {
+ytd-watch-next-secondary-results-renderer,
+ytm-watch-next-secondary-results-renderer,
+ytm-item-section-renderer,
+ytm-video-with-context-renderer,
+ytd-compact-video-renderer,
+ytm-compact-video-renderer,
+ytd-item-section-renderer#related {
   display: none !important;
 }
 

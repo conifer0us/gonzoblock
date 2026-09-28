@@ -1,42 +1,43 @@
 :root {
-  --mfl-ink: #14171f;
-  --mfl-ink-raised: #1c2029;
-  --mfl-parchment: #e9e4d8;
-  --mfl-muted: #9a9787;
-  --mfl-brass: #c9974b;
-  --mfl-line: #2a2e39;
-  --mfl-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --mfl-mono: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
+  --gz-black: #0b0b0b;
+  --gz-ink: #161514;
+  --gz-cream: #ede6d3;
+  --gz-dim: #9a9182;
+  --gz-red: #b3121b;
+  --gz-red-bright: #e8352f;
+  --gz-font: -apple-system, BlinkMacSystemFont, "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --gz-mono: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
 }
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  background: var(--mfl-ink);
-  color: var(--mfl-parchment);
-  font-family: var(--mfl-font);
-  line-height: 1.5;
+  background: var(--gz-black);
+  color: var(--gz-cream);
+  font-family: var(--gz-font);
+  line-height: 1.45;
 }
-code, .mfl-mono {
-  font-family: var(--mfl-mono);
+code, .gz-mono {
+  font-family: var(--gz-mono);
   font-size: 0.9em;
-  color: var(--mfl-brass);
-  background: var(--mfl-ink-raised);
+  color: var(--gz-red-bright);
+  background: var(--gz-ink);
   padding: 0.1em 0.4em;
-  border-radius: 4px;
 }
-a { color: var(--mfl-brass); }
+a { color: var(--gz-red-bright); }
 button {
-  font-family: var(--mfl-font);
-  background: var(--mfl-brass);
-  color: var(--mfl-ink);
-  border: none;
-  border-radius: 6px;
-  padding: 0.6em 1.2em;
-  font-weight: 600;
+  font-family: var(--gz-font);
+  background: var(--gz-red);
+  color: var(--gz-cream);
+  border: 2px solid var(--gz-black);
+  padding: 0.55em 1.3em;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   cursor: pointer;
+  clip-path: polygon(2% 8%, 96% 0%, 100% 88%, 6% 100%, 0% 40%);
 }
-button:hover { filter: brightness(1.08); }
+button:hover { background: var(--gz-red-bright); }
 button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
-  outline: 2px solid var(--mfl-brass);
-  outline-offset: 2px;
+  outline: 2px dashed var(--gz-red-bright);
+  outline-offset: 3px;
 }

@@ -4,15 +4,16 @@ main {
   padding: 2.5rem 1.5rem 4rem;
 }
 .eyebrow {
-  font-family: var(--mfl-mono);
-  letter-spacing: 0.12em;
-  color: var(--mfl-brass);
+  font-family: var(--gz-mono);
+  letter-spacing: 0.15em;
+  color: var(--gz-red-bright);
   font-size: 0.8rem;
   margin: 0 0 0.5rem;
+  text-transform: uppercase;
 }
-h1 { margin: 0 0 2rem; font-size: 1.6rem; }
-section { border-top: 1px solid var(--mfl-line); padding: 1.5rem 0; }
-h2 { font-size: 1rem; margin: 0 0 1rem; color: var(--mfl-parchment); }
+h1 { margin: 0 0 2rem; font-size: 1.8rem; font-weight: 900; text-transform: uppercase; color: var(--gz-cream); }
+section { border-top: 2px dashed var(--gz-red); padding: 1.5rem 0; }
+h2 { font-size: 1rem; margin: 0 0 1rem; color: var(--gz-cream); text-transform: uppercase; letter-spacing: 0.03em; }
 .row {
   display: flex;
   align-items: center;
@@ -21,23 +22,22 @@ h2 { font-size: 1rem; margin: 0 0 1rem; color: var(--mfl-parchment); }
   cursor: pointer;
 }
 .note {
-  color: var(--mfl-muted);
+  color: var(--gz-dim);
   font-size: 0.85rem;
   margin: 0.25rem 0 0.75rem;
 }
 .block { display: block; margin-top: 1rem; }
-.block span { display: block; margin-bottom: 0.4rem; color: var(--mfl-muted); font-size: 0.9rem; }
+.block span { display: block; margin-bottom: 0.4rem; color: var(--gz-dim); font-size: 0.9rem; }
 textarea {
   width: 100%;
-  background: var(--mfl-ink-raised);
-  border: 1px solid var(--mfl-line);
-  border-radius: 6px;
-  color: var(--mfl-parchment);
-  font-family: var(--mfl-mono);
+  background: var(--gz-ink);
+  border: 1px solid var(--gz-red);
+  color: var(--gz-cream);
+  font-family: var(--gz-mono);
   font-size: 0.85rem;
   padding: 0.6rem;
   resize: vertical;
 }
 .save-row { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
-#status { color: var(--mfl-brass); font-size: 0.9rem; }
-input[type="checkbox"] { width: 1.05rem; height: 1.05rem; accent-color: var(--mfl-brass); }
+#status { color: var(--gz-red-bright); font-size: 0.9rem; font-weight: 700; }
+input[type="checkbox"] { width: 1.1rem; height: 1.1rem; accent-color: var(--gz-red); }

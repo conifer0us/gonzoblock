@@ -2,20 +2,19 @@ const DEFAULTS = {
   youtubeEnabled: true,
   instagramEnabled: true,
   redditEnabled: true,
+  twitterEnabled: true,
   hideComments: true,
   hideYouTubeNav: true,
   extraYouTubeAllow: [],
   extraInstagramBlock: [],
-  extraRedditBlock: []
+  extraRedditBlock: [],
+  extraTwitterBlock: []
 };
 
-const fields = ['youtubeEnabled', 'instagramEnabled', 'redditEnabled', 'hideComments', 'hideYouTubeNav'];
+const fields = ['youtubeEnabled', 'instagramEnabled', 'redditEnabled', 'twitterEnabled', 'hideComments', 'hideYouTubeNav'];
 
 function linesToList(text) {
-  return text
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean);
+  return text.split('\n').map((l) => l.trim()).filter(Boolean);
 }
 
 async function load() {
@@ -26,6 +25,7 @@ async function load() {
   document.getElementById('extraYouTubeAllow').value = (stored.extraYouTubeAllow || []).join('\n');
   document.getElementById('extraInstagramBlock').value = (stored.extraInstagramBlock || []).join('\n');
   document.getElementById('extraRedditBlock').value = (stored.extraRedditBlock || []).join('\n');
+  document.getElementById('extraTwitterBlock').value = (stored.extraTwitterBlock || []).join('\n');
 }
 
 async function save() {
@@ -36,10 +36,11 @@ async function save() {
   data.extraYouTubeAllow = linesToList(document.getElementById('extraYouTubeAllow').value);
   data.extraInstagramBlock = linesToList(document.getElementById('extraInstagramBlock').value);
   data.extraRedditBlock = linesToList(document.getElementById('extraRedditBlock').value);
+  data.extraTwitterBlock = linesToList(document.getElementById('extraTwitterBlock').value);
   await browser.storage.local.set(data);
 
   const status = document.getElementById('status');
-  status.textContent = 'Saved';
+  status.textContent = 'SAVED.';
   setTimeout(() => { status.textContent = ''; }, 1500);
 }
 

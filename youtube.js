@@ -1,28 +1,21 @@
 /**
  * youtube.js — enforced on every youtube.com page.
  *
- * Two layers:
- *  1. Navigation lock (this file): the real boundary. A fresh page load is
- *     trusted (that's "a video someone sent you") and its video/short id is
- *     recorded. Any later in-page navigation (related video click, autoplay,
- *     search, Shorts swipe, clicking Home) that tries to move to a DIFFERENT
- *     id, or off /watch //shorts entirely, gets redirected to blocked.html.
- *  2. Cosmetic hiding (youtube.css + applyCosmetics below): removes related
- *     videos, end screens, comments, nav — best effort, not load-bearing.
+ * Navigation lock: patches installed synchronously before any async work,
+ * plus a polling backstop. A fresh load is trusted (a video/Short someone
+ * sent you); moving to a different id afterward — related video, autoplay,
+ * search, Shorts swipe — gets redirected.
  *
- * Detection has two parts, both installed before any async work (settings
- * load in the background and get applied once ready, using safe defaults
- * in the meantime) so nothing on the page gets a window to run unchecked:
- *  - history.pushState/replaceState are patched synchronously, first thing,
- *    so YouTube's own router can't capture a reference to the native
- *    versions before ours is in place.
- *  - a lightweight URL poll acts as a backstop in case some navigation ever
- *    slips past the patch anyway.
+ * Shorts also get gesture suppression, same as Instagram reels: swiping to
+ * the next Short doesn't reliably show up as a URL change, so touch/
+ * pointer/wheel/arrow-key navigation is blocked outright while on a locked
+ * Short, except inside a genuinely scrollable panel (comments).
  */
 (function () {
   const options = { ...MFL_DEFAULTS };
   let allowedVideoId = null;
   let allowedShortId = null;
+  let onLockedShort = false;
   let lastCheckedKey = null;
 
   function redirect() {
@@ -33,6 +26,7 @@
     const path = location.pathname;
     const search = location.search;
     lastCheckedKey = path + search;
+    onLockedShort = false;
 
     if (!mflIsYouTubePathAllowed(path, search, options.extraYouTubeAllow)) {
       redirect();
@@ -55,6 +49,7 @@
         redirect();
         return;
       }
+      onLockedShort = true;
     }
 
     applyCosmetics();
@@ -85,6 +80,30 @@
   setInterval(() => {
     if (location.pathname + location.search !== lastCheckedKey) enforce(false);
   }, 400);
+
+  function suppressShortsSwipe(e) {
+    if (onLockedShort && !mflIsWithinScrollablePanel(e.target)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+  }
+  document.addEventListener('touchmove', suppressShortsSwipe, { passive: false, capture: true });
+  document.addEventListener('pointermove', suppressShortsSwipe, { passive: false, capture: true });
+  document.addEventListener('wheel', suppressShortsSwipe, { passive: false, capture: true });
+  document.addEventListener(
+    'keydown',
+    (e) => {
+      if (
+        onLockedShort &&
+        (e.key === 'ArrowUp' || e.key === 'ArrowDown') &&
+        !mflIsWithinScrollablePanel(e.target)
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    },
+    { capture: true }
+  );
 
   enforce(true);
 

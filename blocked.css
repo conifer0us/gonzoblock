@@ -5,27 +5,30 @@ body {
   min-height: 100vh;
   padding: 2rem;
 }
-main { max-width: 28rem; width: 100%; }
+main { max-width: 26rem; width: 100%; }
 .banner {
-  background: var(--mfl-ink-raised);
-  border-left: 4px solid var(--mfl-brass);
-  border-radius: 8px;
-  padding: 1.1rem 1.3rem;
+  background: var(--gz-ink);
+  border: 3px solid var(--gz-red);
+  padding: 1.3rem 1.4rem;
   margin-bottom: 1rem;
+  transform: rotate(-0.6deg);
+  clip-path: polygon(0% 4%, 98% 0%, 100% 92%, 3% 100%);
 }
 .banner-title {
-  margin: 0 0 0.3rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--mfl-parchment);
+  margin: 0 0 0.35rem;
+  font-size: 1.7rem;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  color: var(--gz-red-bright);
+  text-transform: uppercase;
 }
 .banner-desc {
   margin: 0;
-  color: var(--mfl-parchment);
+  color: var(--gz-cream);
   font-size: 0.95rem;
 }
 .hint {
-  color: var(--mfl-muted);
+  color: var(--gz-dim);
   font-size: 0.85rem;
-  padding: 0 0.2rem;
+  padding: 0 0.3rem;
 }

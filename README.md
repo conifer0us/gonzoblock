@@ -1,93 +1,70 @@
-# Feed Limiter — YouTube & Instagram
+# Gonzo Block
 
-A Firefox extension that blocks the algorithmic parts of YouTube and
-Instagram while leaving specific, intentional uses working.
+Firefox extension that kills the algorithmic scroll on YouTube, Instagram,
+Reddit, and Twitter. Direct links, DMs, search, and profiles still work.
 
-## What it does
+## What it blocks
 
-**YouTube** (allow-list) — only `/watch` (with a video id), `/shorts/<id>`,
-`/live/<id>`, and `/embed/` pages load. Everything else (home, search,
-trending, subscriptions, channel pages) redirects to a blocked page. On an
-allowed watch/Shorts page, the tab locks onto whichever video id first
-loaded — clicking a related video, letting autoplay run, or swiping to
-another Short all get redirected too. Related videos, end-screen
-suggestions, comments, and the top nav bar are hidden by default
-(comments/nav are toggleable in Settings).
+**YouTube** (allow-list): only `/watch?v=`, `/shorts/<id>`, `/live/<id>`, and
+`/embed/` load. Everything else redirects. Once you're on a video or Short,
+you stay on that id. Related videos, autoplay, and swiping to the next Short
+all get shut down. Comments, recommendations, end screens, and the nav bar
+are hidden (comments and nav can be turned back on in Settings).
 
-**Instagram** (block-list) — only the home feed (`/`), Explore, and the
-Reels tab are blocked; landing on any of those redirects straight to your
-DM inbox rather than a separate blocked page. Everything else works
-normally: messages (reels/photos sent to you play inline), posting, search,
-viewing profiles, and individual posts. An individual `/reel/<id>` (say,
-one opened from a DM or a profile) is allowed and locked to that id —
-swiping to a different reel from there gets redirected the same way the
-blocked routes do.
+**Instagram** (block-list): feed, Explore, and the Reels tab send you to your
+DMs. Messages, posting, search, profiles, and individual posts and reels work.
+A reel opened from a DM locks as soon as the video shows up on the page, keeps
+the lock through a pause, and still lets comments scroll.
 
-## How enforcement works (and why it's resilient)
+**Reddit** (block-list): front page, `/hot`, `/new`, `/top`, `/rising`,
+`/controversial`, `/best`, `/r/all`, and `/r/popular` are blocked. Subreddits,
+posts, profiles, messages, and search work.
 
-Two layers, on purpose:
+**Twitter** (block-list): `/` and `/home` are blocked. Both twitter.com and
+x.com are covered. Search, posts, hashtags, and profiles work.
 
-1. **Navigation lock** (`rules.js` + `youtube.js`/`instagram.js`) — the real
-   boundary. It works entirely off the URL, checked on every full page load
-   and every in-app (SPA) navigation, synchronously and immediately (not
-   deferred), so there's no gap for a blocked route to render before the
-   redirect fires. This doesn't depend on either site's HTML/CSS at all, so
-   it keeps working through a redesign.
-2. **Cosmetic hiding** (`youtube.css`, `instagram.css`, the autoplay-toggle
-   click in `youtube.js`) — best-effort decluttering using selectors that
-   are reasonably stable but not guaranteed forever. If a selector goes
-   stale, the UI just looks messier — the navigation lock still holds.
+## How it works
 
-If something visually leaks through after a site redesign, open DevTools
-(`Ctrl+Shift+I` → Inspector), find the new class/id, and update the matching
-`.css` file. The `.js` files should rarely need touching.
+1. **URL lock.** `history.pushState` and `replaceState` get patched
+   synchronously before anything else runs, with a 400ms poll as backup. The
+   patch has to land first, because some routers grab their own copy of
+   `pushState` during startup and would skip a late patch for good.
+2. **Gesture blocking** (Instagram reels, YouTube Shorts). Swiping between
+   reels usually never changes the URL, so touch, pointer, wheel, and arrow
+   key events get blocked directly. `mflIsWithinScrollablePanel` in
+   `rules.js` backs off inside anything that scrolls on its own, like a
+   comments drawer, by checking scroll size and height rather than site
+   selectors.
+3. **CSS hiding.** Best effort. If a selector breaks after a redesign, the
+   page looks messier but layers 1 and 2 still hold.
 
 ## Files
 
-| File | Purpose |
-|---|---|
-| `manifest.json` | Extension manifest (MV3) |
-| `rules.js` | Shared allow/block-list logic |
-| `youtube.js` / `youtube.css` | YouTube enforcement + hiding |
-| `instagram.js` / `instagram.css` | Instagram enforcement + hiding |
-| `blocked.html/.css/.js` | Page shown when YouTube blocks something |
-| `options.html/.css/.js` | Settings UI |
-| `popup.html/.css/.js` | Toolbar status popup |
-| `common.css` | Shared styling for the pages above |
-| `icons/` | Toolbar/listing icons |
+`manifest.json`, `rules.js` (shared rules), `youtube.js/.css`,
+`instagram.js/.css`, `reddit.js`, `twitter.js`, `blocked.*`, `options.*`,
+`popup.*`, `common.css`, `icons/icon.svg`.
 
-## Test it locally (no publishing needed)
+## Testing
 
-1. `about:debugging#/runtime/this-firefox`
-2. **Load Temporary Add-on** → select `manifest.json` from the unzipped
-   folder. Already loaded it before? Just hit **Reload** on that same page
-   instead of re-adding it.
-3. It's live until Firefox restarts — good for iterating.
+`about:debugging#/runtime/this-firefox`, then Load Temporary Add-on and pick
+`manifest.json`. Use Reload after changes.
 
-## Adjusting the rules
+## Publishing
 
-- **Options page** (toolbar icon → Settings, or `about:addons` → this
-  extension → Preferences): toggle comments/nav, add extra allowed path
-  prefixes on YouTube (e.g. `/playlist`), or extra *blocked* path prefixes
-  on Instagram (e.g. `/stories` if Stories should count as the algorithm
-  too) — no code changes needed.
-- **`rules.js`**: edit `mflIsYouTubePathAllowed` / `mflIsInstagramPathBlocked`
-  directly for anything more structural.
+The extension id is `{feb7bfd1-1189-4b52-be1f-5c3b954fcc7a}`. It matches the
+existing AMO listing, so leave it alone unless you want a new listing.
 
-## Known limitations
+## Tuning
 
-- Built from knowledge of YouTube/Instagram's structure, not tested against
-  the live sites in this environment — the navigation lock should be solid,
-  but check that the cosmetic CSS hiding still matches current markup and
-  adjust selectors if not.
-- Instagram's `/reel/` vs `/reels/` distinction (singular = one shared reel,
-  plural = the browsing tab) is based on their historical URL scheme; verify
-  it still holds and adjust `rules.js` if not.
-- Stories aren't restricted by default — add `/stories` to the Instagram
-  "extra blocked paths" option if you want them blocked too.
-- If the Instagram redirect still shows a flash of feed content before
-  landing on messages, that likely means Instagram keeps feed content
-  mounted behind the messages view rather than this being a pure timing
-  issue — worth reporting back so the fix can target that specifically.
-- If a YouTube link someone sends you includes `&list=` (a playlist), only
-  that one video loads — it won't auto-advance through the rest.
+Settings lets you turn each site off and add extra paths (allowed on YouTube,
+blocked on the others). Bigger changes go in the matching function in
+`rules.js`.
+
+## Caveats
+
+- Never tested against the live sites. The URL lock and gesture blocking
+  should hold up. The CSS selectors are what breaks first after a redesign.
+- The 60% width check for the main video and the 85% height check for
+  comment panels are guesses based on typical layouts. Adjust them if they
+  misfire.
+- Reddit multireddits and subreddit-scoped search are allowed by default.

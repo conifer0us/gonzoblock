@@ -1,15 +1,22 @@
 const params = new URLSearchParams(location.search);
 const site = params.get('site');
 
+const titles = {
+  youtube: 'HELL NO.',
+  reddit: 'FRONT PAGE IS OFF.',
+  twitter: 'NICE TRY.'
+};
 const descriptions = {
-  youtube: "That's not a video you opened — that's the feed.",
-  reddit: "That's the homepage scroll, not a link or a sub."
+  youtube: "That's the feed. Go watch the thing you picked.",
+  reddit: "Homepage is off. Scram.",
+  twitter: "Timeline's off limits."
 };
 const hints = {
-  youtube: 'Open a direct link and it plays fine.',
-  reddit: 'Individual posts, subreddits, and search still work — just not the homepage.'
+  youtube: 'Direct links still play fine.',
+  reddit: 'Subreddits, posts, and search still work.',
+  twitter: 'Search, posts, and profiles still work.'
 };
 
-document.getElementById('reason').textContent =
-  descriptions[site] || "That's the algorithm, not a link you opened.";
-document.getElementById('hint').textContent = hints[site] || 'Direct links still work fine.';
+document.getElementById('title').textContent = titles[site] || 'BLOCKED.';
+document.getElementById('reason').textContent = descriptions[site] || 'Algorithm territory. Not today.';
+document.getElementById('hint').textContent = hints[site] || 'Direct links still work.';
