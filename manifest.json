@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Gonzo Block",
-  "version": "2.0.1",
+  "version": "2.0.4",
   "description": "Blocks the algorithmic feeds on YouTube, Instagram, Reddit, and Twitter. Direct links, DMs, posting, search, and profiles still work.",
   "browser_specific_settings": {
     "gecko": {
@@ -9,7 +9,9 @@
       "strict_min_version": "115.0"
     }
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "icons": {
     "16": "icons/icon.svg",
     "32": "icons/icon.svg",
@@ -31,32 +33,69 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.youtube.com/*"],
-      "js": ["rules.js", "youtube.js"],
-      "css": ["youtube.css"],
+      "matches": [
+        "*://*.youtube.com/*"
+      ],
+      "js": [
+        "rules.js",
+        "youtube.js"
+      ],
       "run_at": "document_start"
     },
     {
-      "matches": ["*://*.instagram.com/*"],
-      "js": ["rules.js", "instagram.js"],
-      "css": ["instagram.css"],
+      "matches": [
+        "*://*.instagram.com/*"
+      ],
+      "js": [
+        "rules.js",
+        "instagram.js"
+      ],
+      "css": [
+        "instagram.css"
+      ],
       "run_at": "document_start"
     },
     {
-      "matches": ["*://*.reddit.com/*"],
-      "js": ["rules.js", "reddit.js"],
+      "matches": [
+        "*://*.reddit.com/*"
+      ],
+      "js": [
+        "rules.js",
+        "reddit.js"
+      ],
       "run_at": "document_start"
     },
     {
-      "matches": ["*://x.com/*", "*://*.x.com/*", "*://twitter.com/*", "*://*.twitter.com/*"],
-      "js": ["rules.js", "twitter.js"],
+      "matches": [
+        "*://x.com/*",
+        "*://*.x.com/*",
+        "*://twitter.com/*",
+        "*://*.twitter.com/*"
+      ],
+      "js": [
+        "rules.js",
+        "twitter.js"
+      ],
       "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["blocked.html", "blocked.css", "common.css", "icons/icon.svg"],
-      "matches": ["*://*.youtube.com/*", "*://*.instagram.com/*", "*://*.reddit.com/*", "*://x.com/*", "*://*.x.com/*", "*://twitter.com/*", "*://*.twitter.com/*"]
+      "resources": [
+        "blocked.html",
+        "blocked.css",
+        "common.css",
+        "icons/icon.svg"
+      ],
+      "matches": [
+        "*://*.youtube.com/*",
+        "*://*.instagram.com/*",
+        "*://*.reddit.com/*",
+        "*://x.com/*",
+        "*://*.x.com/*",
+        "*://twitter.com/*",
+        "*://*.twitter.com/*"
+      ]
     }
   ]
 }

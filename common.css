@@ -3,8 +3,8 @@
   --gz-ink: #161514;
   --gz-cream: #ede6d3;
   --gz-dim: #9a9182;
-  --gz-red: #b3121b;
-  --gz-red-bright: #e8352f;
+  --gz-red: #7a2420;
+  --gz-red-bright: #b5443a;
   --gz-font: -apple-system, BlinkMacSystemFont, "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --gz-mono: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
 }
@@ -19,25 +19,25 @@ body {
 code, .gz-mono {
   font-family: var(--gz-mono);
   font-size: 0.9em;
-  color: var(--gz-red-bright);
+  color: var(--gz-cream);
   background: var(--gz-ink);
   padding: 0.1em 0.4em;
 }
-a { color: var(--gz-red-bright); }
+a { color: var(--gz-cream); text-decoration: underline; text-decoration-color: var(--gz-dim); }
 button {
   font-family: var(--gz-font);
-  background: var(--gz-red);
+  background: var(--gz-ink);
   color: var(--gz-cream);
-  border: 2px solid var(--gz-black);
+  border: 2px solid var(--gz-red);
   padding: 0.55em 1.3em;
-  font-weight: 900;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   cursor: pointer;
   clip-path: polygon(2% 8%, 96% 0%, 100% 88%, 6% 100%, 0% 40%);
 }
-button:hover { background: var(--gz-red-bright); }
+button:hover { background: var(--gz-red); }
 button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
-  outline: 2px dashed var(--gz-red-bright);
+  outline: 2px dashed var(--gz-dim);
   outline-offset: 3px;
 }

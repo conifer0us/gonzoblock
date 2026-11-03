@@ -1,15 +1,10 @@
 const params = new URLSearchParams(location.search);
 const site = params.get('site');
 
-const titles = {
-  youtube: 'HELL NO.',
-  reddit: 'FRONT PAGE IS OFF.',
-  twitter: 'NICE TRY.'
-};
 const descriptions = {
-  youtube: "That's the feed. Go watch the thing you picked.",
-  reddit: "Homepage is off. Scram.",
-  twitter: "Timeline's off limits."
+  youtube: "YouTube's home feed is blocked here.",
+  reddit: "Reddit's front page is blocked here.",
+  twitter: 'The timeline is blocked here.'
 };
 const hints = {
   youtube: 'Direct links still play fine.',
@@ -17,6 +12,5 @@ const hints = {
   twitter: 'Search, posts, and profiles still work.'
 };
 
-document.getElementById('title').textContent = titles[site] || 'BLOCKED.';
-document.getElementById('reason').textContent = descriptions[site] || 'Algorithm territory. Not today.';
+document.getElementById('reason').textContent = descriptions[site] || 'This page is blocked.';
 document.getElementById('hint').textContent = hints[site] || 'Direct links still work.';

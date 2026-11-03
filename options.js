@@ -3,15 +3,13 @@ const DEFAULTS = {
   instagramEnabled: true,
   redditEnabled: true,
   twitterEnabled: true,
-  hideComments: true,
-  hideYouTubeNav: true,
   extraYouTubeAllow: [],
   extraInstagramBlock: [],
   extraRedditBlock: [],
   extraTwitterBlock: []
 };
 
-const fields = ['youtubeEnabled', 'instagramEnabled', 'redditEnabled', 'twitterEnabled', 'hideComments', 'hideYouTubeNav'];
+const fields = ['youtubeEnabled', 'instagramEnabled', 'redditEnabled', 'twitterEnabled'];
 
 function linesToList(text) {
   return text.split('\n').map((l) => l.trim()).filter(Boolean);

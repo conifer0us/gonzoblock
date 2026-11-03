@@ -1,14 +1,25 @@
-/* Cosmetic only — declutters the nav on allowed pages. Real enforcement is
-   the redirect logic in instagram.js, so this is safe to leave stale if
-   Instagram's markup changes.
-   Search, Messages, Create, Notifications, and Profile stay visible on
-   purpose (all allowed now) — only Home, Explore, and the Reels tab, which
-   all lead to blocked destinations, are decluttered. */
-nav a[aria-label="Home"],
-nav a[aria-label="Explore"],
+/* Cosmetic only. Real enforcement is in instagram.js. */
+
+/* Reels tab: hidden everywhere. */
 nav a[aria-label="Reels"],
-a[href="/explore/"],
-a[href^="/explore/"],
 a[href="/reels/"] {
   display: none !important;
 }
+
+/* Desktop: Home and Explore just redirect to DMs, so hide them. Mobile keeps
+   them (Home shows the heart, the search tab lives under /explore). */
+html:not(.mfl-ig-mobile) nav a[aria-label="Home"],
+html:not(.mfl-ig-mobile) nav a[aria-label="Explore"],
+html:not(.mfl-ig-mobile) a[href="/explore/"],
+html:not(.mfl-ig-mobile) a[href^="/explore/"] {
+  display: none !important;
+}
+
+/* Mobile home: feed posts and stories tray removed. */
+html.mfl-ig-home article { display: none !important; }
+html.mfl-ig-home a[href^="/stories/"] { display: none !important; }
+
+/* Mobile explore/search: keep the search box and account results, drop the
+   grid of suggested posts and reels. */
+html.mfl-ig-explore a[href^="/p/"] { display: none !important; }
+html.mfl-ig-explore a[href^="/reel/"] { display: none !important; }

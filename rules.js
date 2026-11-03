@@ -15,8 +15,6 @@ const MFL_DEFAULTS = {
   instagramEnabled: true,
   redditEnabled: true,
   twitterEnabled: true,
-  hideComments: true,
-  hideYouTubeNav: true,
   extraYouTubeAllow: [],
   extraInstagramBlock: [],
   extraRedditBlock: [],
@@ -73,11 +71,24 @@ function mflIsYouTubePathAllowed(path, search, extraAllow) {
   return false;
 }
 
-const MFL_IG_BLOCKED_PREFIXES = ['/explore', '/reels'];
+// Mobile and desktop differ on purpose.
+// Desktop: home ('/'), Explore, and the Reels tab are all blocked (redirect to DMs).
+// Mobile: home and the Explore landing page load so the heart (new followers)
+// and search work, with the feed/grid neutralized by instagram.js/.css. The
+// Reels tab and hashtag/location pages are still blocked.
+const MFL_IG_BLOCKED_DESKTOP = ['/explore', '/reels'];
+const MFL_IG_BLOCKED_MOBILE = ['/reels', '/explore/tags', '/explore/locations'];
 
-function mflIsInstagramPathBlocked(path, extraBlock) {
-  if (path === '/') return true;
-  if (MFL_IG_BLOCKED_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))) return true;
+function mflIsMobileLayout() {
+  const w = window.innerWidth;
+  const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  return (w > 0 && w < 768) || coarse;
+}
+
+function mflIsInstagramPathBlocked(path, extraBlock, mobile) {
+  if (!mobile && path === '/') return true;
+  const list = mobile ? MFL_IG_BLOCKED_MOBILE : MFL_IG_BLOCKED_DESKTOP;
+  if (list.some((p) => path === p || path.startsWith(p + '/'))) return true;
   if (mflMatchesPrefix(path, extraBlock)) return true;
   return false;
 }

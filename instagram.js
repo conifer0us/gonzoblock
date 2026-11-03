@@ -1,33 +1,41 @@
 /**
  * instagram.js — enforced on every instagram.com page.
  *
- * Two layers for navigation, same pattern as youtube.js: patches installed
- * synchronously before any async work, plus a polling backstop. Landing on
- * a blocked path redirects straight to the DM inbox.
+ * Navigation: patches installed synchronously before any async work, plus a
+ * polling backstop. Blocked paths redirect to the DM inbox.
  *
- * A third layer handles reels: a dedicated /reel/<id> page gets id-lock
- * treatment; a reel played inline inside a DM never changes the URL, so
- * this watches for a large video element instead. It locks the moment that
- * element EXISTS in the DOM (via a MutationObserver), not just once it
- * starts playing — waiting for 'play' left a gap right after clicking a
- * reel, before playback actually started, where scrolling still worked.
- * The lock persists through pause (pausing isn't an escape hatch) and
- * clears only when the element leaves the DOM or you navigate away.
- * Touch/pointer/wheel/arrow-key gestures are suppressed while locked,
- * except inside a genuinely scrollable panel (comments), so comments still
- * scroll normally.
+ * Desktop: home, Explore, and Reels are all blocked (redirect to DMs).
+ * Mobile layout: home and the Explore landing page load on purpose, so the
+ * heart (new followers) and search work. Their feed and post grid are hidden
+ * by instagram.css, and on home all scrolling is blocked. Reels and hashtag
+ * pages stay blocked.
+ *
+ * Reels: a dedicated /reel/<id> page gets id-lock treatment; a reel played
+ * inline in a DM never changes the URL, so a large video element locks the
+ * moment it exists in the DOM. The lock survives pause and clears when the
+ * element leaves the DOM or you navigate. Gestures are blocked while locked,
+ * except inside genuinely scrollable panels (comments).
  */
 (function () {
   let instagramEnabled = true;
   let extraBlock = [];
   let allowedReelId = null;
   let onLockedReel = false;
+  let homeMode = false;
   let lockedVideoEl = null;
   let currentPath = null;
   let lastCheckedPath = null;
+  let lastMobile = null;
+  const root = document.documentElement;
 
   function redirectToMessages() {
     window.location.replace('/direct/inbox/');
+  }
+
+  function setModes(home, explore) {
+    homeMode = home;
+    root.classList.toggle('mfl-ig-home', home);
+    root.classList.toggle('mfl-ig-explore', explore);
   }
 
   function enforce(isFreshLoad) {
@@ -36,14 +44,20 @@
     lastCheckedPath = path;
     onLockedReel = false;
     lockedVideoEl = null;
+    const mobile = mflIsMobileLayout();
+    lastMobile = mobile;
+    root.classList.toggle('mfl-ig-mobile', mobile);
+    setModes(false, false);
 
     if (!instagramEnabled) return;
     if (path === '/direct/inbox/') return;
 
-    if (mflIsInstagramPathBlocked(path, extraBlock)) {
+    if (mflIsInstagramPathBlocked(path, extraBlock, mobile)) {
       redirectToMessages();
       return;
     }
+
+    if (mobile) setModes(path === '/', path === '/explore' || path.startsWith('/explore/'));
 
     const reelMatch = path.match(/^\/reel\/([\w-]+)/);
     if (reelMatch) {
@@ -69,7 +83,7 @@
   window.addEventListener('popstate', () => enforce(false));
 
   setInterval(() => {
-    if (location.pathname !== lastCheckedPath) enforce(false);
+    if (location.pathname !== lastCheckedPath || mflIsMobileLayout() !== lastMobile) enforce(false);
   }, 400);
 
   function isLikelyMainVideo(video) {
@@ -79,8 +93,7 @@
   }
 
   function findMainVideo() {
-    const videos = document.querySelectorAll('video');
-    for (const v of videos) {
+    for (const v of document.querySelectorAll('video')) {
       if (isLikelyMainVideo(v)) return v;
     }
     return null;
@@ -96,39 +109,52 @@
       if (v) lockedVideoEl = v;
     });
   }
-  new MutationObserver(scheduleVideoCheck).observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
+  new MutationObserver(scheduleVideoCheck).observe(root, { childList: true, subtree: true });
   document.addEventListener('play', (e) => {
     if (isLikelyMainVideo(e.target)) lockedVideoEl = e.target;
   }, true);
 
-  function shouldSuppressSwipe() {
+  function reelLocked() {
     if (onLockedReel) return true;
-    if (lockedVideoEl && currentPath && currentPath.startsWith('/direct/') && document.contains(lockedVideoEl)) {
-      return true;
+    return !!(lockedVideoEl && currentPath && currentPath.startsWith('/direct/') && document.contains(lockedVideoEl));
+  }
+
+  // Fixed-position layers (the desktop notifications flyout, dialogs) keep
+  // their own scrolling even on the home page.
+  function isInFixedLayer(target) {
+    let el = target;
+    while (el && el !== document.body && el !== root) {
+      if (el.nodeType === 1 && window.getComputedStyle(el).position === 'fixed') return true;
+      el = el.parentElement;
     }
     return false;
   }
 
-  function suppressSwipe(e) {
-    if (shouldSuppressSwipe() && !mflIsWithinScrollablePanel(e.target)) {
+  function shouldBlock(target) {
+    if (!instagramEnabled) return false;
+    const reel = reelLocked();
+    const home = homeMode && !isInFixedLayer(target);
+    return (reel || home) && !mflIsWithinScrollablePanel(target);
+  }
+
+  function suppress(e) {
+    if (shouldBlock(e.target)) {
       e.preventDefault();
       e.stopImmediatePropagation();
     }
   }
-  document.addEventListener('touchmove', suppressSwipe, { passive: false, capture: true });
-  document.addEventListener('pointermove', suppressSwipe, { passive: false, capture: true });
-  document.addEventListener('wheel', suppressSwipe, { passive: false, capture: true });
+  document.addEventListener('touchmove', suppress, { passive: false, capture: true });
+  document.addEventListener('pointermove', suppress, { passive: false, capture: true });
+  document.addEventListener('wheel', suppress, { passive: false, capture: true });
   document.addEventListener(
     'keydown',
     (e) => {
-      if (
-        shouldSuppressSwipe() &&
-        (e.key === 'ArrowUp' || e.key === 'ArrowDown') &&
-        !mflIsWithinScrollablePanel(e.target)
-      ) {
+      const t = e.target;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      const keys = homeMode
+        ? ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'End', 'Home', ' ']
+        : ['ArrowUp', 'ArrowDown'];
+      if (keys.includes(e.key) && shouldBlock(t)) {
         e.preventDefault();
         e.stopPropagation();
       }

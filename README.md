@@ -5,22 +5,27 @@ Reddit, and Twitter. Direct links, DMs, search, and profiles still work.
 
 ## What it blocks
 
-**YouTube** (allow-list): only `/watch?v=`, `/shorts/<id>`, `/live/<id>`, and
-`/embed/` load. Everything else redirects. Once you're on a video or Short,
-you stay on that id. Related videos, autoplay, and swiping to the next Short
-all get shut down. Comments, recommendations, end screens, and the nav bar
-are hidden (comments and nav can be turned back on in Settings).
+**YouTube** (allow-list): minimal and layout-free, nothing on the page is hidden.
+Clicks on links that leave the video you're on (logo/home, search, channels,
+related videos, other videos) are swallowed, and the URL lock redirects
+anything else (autoplay, search box, typed URLs) to the blocked page. Shorts
+also get gesture blocking since swiping rarely changes the URL.
 
-**Instagram** (block-list): feed, Explore, and the Reels tab send you to your
-DMs. Messages, posting, search, profiles, and individual posts and reels work.
-A reel opened from a DM locks as soon as the video shows up on the page, keeps
-the lock through a pause, and still lets comments scroll.
+**Instagram** (block-list): on desktop, home, Explore, and the Reels tab
+redirect to your DMs. On mobile, home and Explore still load, so the heart
+(new followers) and search work, but the feed, stories tray, and post grid
+are hidden and scrolling on home is blocked; Reels and hashtag pages stay
+blocked. Messages, posting, profiles, and individual posts and reels work. A
+reel opened from a DM locks as soon as the video shows up, keeps the lock
+through a pause, and still lets comments scroll.
 
 **Reddit** (block-list): front page, `/hot`, `/new`, `/top`, `/rising`,
 `/controversial`, `/best`, `/r/all`, and `/r/popular` are blocked. Subreddits,
 posts, profiles, messages, and search work.
 
-**Twitter** (block-list): `/` and `/home` are blocked. Both twitter.com and
+**Twitter** (block-list): `/` and `/home` are blocked. Opening a video locks you to
+that tweet (another video redirects); on mobile layouts swiping is blocked
+too, on desktop scrolling is left alone. Both twitter.com and
 x.com are covered. Search, posts, hashtags, and profiles work.
 
 ## How it works

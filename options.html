@@ -15,8 +15,6 @@
     <section>
       <h2>YouTube</h2>
       <label class="row"><input type="checkbox" id="youtubeEnabled"> Block it</label>
-      <label class="row"><input type="checkbox" id="hideComments"> Hide comments</label>
-      <label class="row"><input type="checkbox" id="hideYouTubeNav"> Hide the nav bar</label>
       <label class="block">
         <span>Extra allowed paths, one per line — e.g. <code>/playlist</code></span>
         <textarea id="extraYouTubeAllow" rows="3" placeholder="/playlist"></textarea>
@@ -26,7 +24,7 @@
     <section>
       <h2>Instagram</h2>
       <label class="row"><input type="checkbox" id="instagramEnabled"> Block it</label>
-      <p class="note">DMs, posting, search, profiles, and anything someone sent you all work. The feed, Explore, and Reels tab do not.</p>
+      <p class="note">DMs, posting, search, profiles all work. On desktop, home, Explore, and Reels redirect to your DMs. On mobile, home and Explore load for the heart and search, with the feed hidden and scrolling blocked there; Reels and hashtag pages are blocked.</p>
       <label class="block">
         <span>Extra blocked paths, one per line — e.g. <code>/stories</code></span>
         <textarea id="extraInstagramBlock" rows="3" placeholder="/stories"></textarea>

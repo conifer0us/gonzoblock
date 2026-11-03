@@ -1,15 +1,16 @@
 /**
- * youtube.js — enforced on every youtube.com page.
+ * youtube.js — enforced on every youtube.com page. Deliberately minimal: it
+ * doesn't touch the page layout at all.
  *
- * Navigation lock: patches installed synchronously before any async work,
- * plus a polling backstop. A fresh load is trusted (a video/Short someone
- * sent you); moving to a different id afterward — related video, autoplay,
- * search, Shorts swipe — gets redirected.
- *
- * Shorts also get gesture suppression, same as Instagram reels: swiping to
- * the next Short doesn't reliably show up as a URL change, so touch/
- * pointer/wheel/arrow-key navigation is blocked outright while on a locked
- * Short, except inside a genuinely scrollable panel (comments).
+ *  1. Link clicks: a click (or middle-click) on a link that leaves the video
+ *     you're on is swallowed. That covers the logo/home, search, channels,
+ *     related videos, and other video links. Same-video links (timestamps,
+ *     #anchors) still work.
+ *  2. URL lock (backstop for anything that isn't a link: autoplay, search box,
+ *     typed URLs): a fresh load of /watch or /shorts is trusted and its id
+ *     remembered; moving anywhere else redirects to the blocked page.
+ *  3. Shorts: swipe/scroll/arrow gestures are blocked on a Short (swiping
+ *     rarely changes the URL), except inside scrollable panels (comments).
  */
 (function () {
   const options = { ...MFL_DEFAULTS };
@@ -22,11 +23,19 @@
     window.location.replace(mflBlockedUrl('youtube'));
   }
 
+  function currentId() {
+    if (location.pathname === '/watch') return new URLSearchParams(location.search).get('v');
+    if (/^\/shorts\//.test(location.pathname)) return location.pathname.split('/')[2];
+    return null;
+  }
+
   function enforce(isFreshLoad) {
     const path = location.pathname;
     const search = location.search;
     lastCheckedKey = path + search;
     onLockedShort = false;
+
+    if (!options.youtubeEnabled) return;
 
     if (!mflIsYouTubePathAllowed(path, search, options.extraYouTubeAllow)) {
       redirect();
@@ -51,20 +60,33 @@
       }
       onLockedShort = true;
     }
-
-    applyCosmetics();
   }
 
-  function applyCosmetics() {
-    try {
-      const toggle = document.querySelector(
-        '.ytp-autonav-toggle-button[aria-checked="true"], #toggle.ytp-autonav-toggle-button[aria-checked="true"]'
-      );
-      if (toggle) toggle.click();
-    } catch (e) {
-      /* selector drift — ignore */
+  function linkBlocked(href) {
+    let u;
+    try { u = new URL(href, location.href); } catch (e) { return false; }
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
+    const cur = currentId();
+    if (u.hostname === 'youtu.be') return u.pathname.slice(1) !== cur;
+    if (!/(^|\.)youtube\.com$/.test(u.hostname)) return false; // other sites are fine
+    if (u.pathname === location.pathname && u.search === location.search) return false;
+    if (!mflIsYouTubePathAllowed(u.pathname, u.search, options.extraYouTubeAllow)) return true;
+    let id = null;
+    if (u.pathname === '/watch') id = u.searchParams.get('v');
+    else if (/^\/shorts\//.test(u.pathname)) id = u.pathname.split('/')[2];
+    return id !== null && cur !== null && id !== cur;
+  }
+
+  function onLinkClick(e) {
+    if (!options.youtubeEnabled) return;
+    const a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if (a && linkBlocked(a.href)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
     }
   }
+  document.addEventListener('click', onLinkClick, true);
+  document.addEventListener('auxclick', onLinkClick, true);
 
   for (const method of ['pushState', 'replaceState']) {
     const original = history[method];
@@ -107,13 +129,8 @@
 
   enforce(true);
 
-  const observer = new MutationObserver(() => applyCosmetics());
-  observer.observe(document.documentElement, { childList: true, subtree: true });
-
   mflGetOptions().then((real) => {
     Object.assign(options, real);
-    document.documentElement.classList.toggle('mfl-show-comments', !options.hideComments);
-    document.documentElement.classList.toggle('mfl-show-nav', !options.hideYouTubeNav);
     enforce(true);
   });
 })();

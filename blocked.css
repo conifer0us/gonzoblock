@@ -8,24 +8,17 @@ body {
 main { max-width: 26rem; width: 100%; }
 .banner {
   background: var(--gz-ink);
-  border: 3px solid var(--gz-red);
-  padding: 1.3rem 1.4rem;
+  border: 2px solid var(--gz-red);
+  padding: 1.2rem 1.4rem;
   margin-bottom: 1rem;
-  transform: rotate(-0.6deg);
+  transform: rotate(-0.4deg);
   clip-path: polygon(0% 4%, 98% 0%, 100% 92%, 3% 100%);
-}
-.banner-title {
-  margin: 0 0 0.35rem;
-  font-size: 1.7rem;
-  font-weight: 900;
-  letter-spacing: 0.01em;
-  color: var(--gz-red-bright);
-  text-transform: uppercase;
 }
 .banner-desc {
   margin: 0;
   color: var(--gz-cream);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 .hint {
   color: var(--gz-dim);
